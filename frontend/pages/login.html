@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In - PlanAlpha Collaborative Project Management</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html" class="nav-brand" style="justify-content: center; margin-bottom: 1rem;">
+          📊 <span>PlanAlpha</span>
+        </a>
+        <h1>Welcome Back</h1>
+        <p>Sign in to access your projects and collaborate with your team.</p>
+      </div>
+
+      <div id="alert-box" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1.25rem; font-size: 0.85rem;"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Work Email</label>
+          <input type="email" id="email" class="form-input" placeholder="jane@company.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;">
+          Sign In
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted);">
+        Don't have an account? <a href="register.html" style="color: var(--primary); font-weight: 700; text-decoration: none;">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    auth.redirectIfAuth();
+
+    const loginForm = document.getElementById('login-form');
+    const alertBox = document.getElementById('alert-box');
+    const submitBtn = document.getElementById('submit-btn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+
+        const res = await api.post('/auth/login', { email, password });
+        auth.setAuth(res.data.user, res.data.token);
+
+        window.location.href = 'index.html';
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.backgroundColor = 'var(--danger-bg)';
+        alertBox.style.color = 'var(--danger)';
+        alertBox.textContent = err.message || 'Login failed. Please check your credentials.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

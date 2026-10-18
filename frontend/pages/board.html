@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Board - PlanAlpha</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body style="overflow-x: hidden;">
+  <!-- Navbar -->
+  <header class="navbar">
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <a href="index.html" class="nav-brand">
+        📊 <span>PlanAlpha</span>
+      </a>
+      <a href="index.html" class="btn btn-secondary btn-sm" style="text-decoration: none;">
+        &larr; Projects Dashboard
+      </a>
+    </div>
+    <div class="nav-actions" id="nav-user-container">
+      <!-- Injected by auth.js -->
+    </div>
+  </header>
+
+  <!-- Board Info Header -->
+  <section class="board-header">
+    <div class="board-info">
+      <h1 id="board-project-title">Loading project board...</h1>
+      <p id="board-project-desc" style="margin-top: 0.2rem;"></p>
+    </div>
+
+    <div class="board-team">
+      <div class="member-avatars" id="board-members-preview" style="cursor: pointer;" title="Manage Project Members">
+        <!-- Injected dynamically -->
+      </div>
+      <button class="btn btn-secondary btn-sm" id="open-members-modal-btn">
+        👥 Team Members (<span id="members-count-badge">0</span>)
+      </button>
+      <button class="btn btn-outline btn-sm" id="open-add-column-btn">
+        + Add Column
+      </button>
+      <button class="btn btn-danger btn-sm" id="delete-project-btn" style="display: none;">
+        Delete Project
+      </button>
+    </div>
+  </section>
+
+  <!-- Kanban Horizontal Columns -->
+  <main class="board-container" id="kanban-board-container">
+    <div style="padding: 3rem; text-align: center; color: var(--text-muted); width: 100%;">
+      <p>Loading board columns and task cards...</p>
+    </div>
+  </main>
+
+  <!-- Task Details & Comments Modal -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal-card" style="max-width: 760px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span id="modal-task-priority" class="task-priority-badge priority-medium">MEDIUM</span>
+          <h2 id="modal-task-title" style="font-size: 1.3rem;">Task Details</h2>
+        </div>
+        <button class="modal-close-btn" id="close-task-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="edit-task-form">
+          <div class="form-group">
+            <label for="edit-title">Task Title</label>
+            <input type="text" id="edit-title" class="form-input" required maxlength="120">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-desc">Description</label>
+            <textarea id="edit-desc" class="form-textarea" rows="3" placeholder="Add detailed instructions, context, or acceptance criteria..."></textarea>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="edit-column">Status Column</label>
+              <select id="edit-column" class="form-select"></select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="edit-priority">Priority</label>
+              <select id="edit-priority" class="form-select">
+                <option value="LOW">🟢 Low</option>
+                <option value="MEDIUM" selected>🔵 Medium</option>
+                <option value="HIGH">🟡 High</option>
+                <option value="URGENT">🔴 Urgent</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="edit-assignee">Assignee</label>
+              <select id="edit-assignee" class="form-select">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-due-date">Due Date</label>
+            <input type="date" id="edit-due-date" class="form-input" style="max-width: 240px;">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <button type="button" class="btn btn-danger btn-sm" id="modal-delete-task-btn">
+              🗑️ Delete Task
+            </button>
+            <button type="submit" class="btn btn-sm" id="save-task-changes-btn">
+              Save Changes
+            </button>
+          </div>
+        </form>
+
+        <!-- Comments Discussion Thread -->
+        <section class="comments-section">
+          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">
+            💬 Discussion & Activity
+          </h3>
+
+          <!-- Add Comment Form -->
+          <form id="add-comment-form" style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <input type="text" id="comment-input" class="form-input" placeholder="Write a comment or update for the team..." required maxlength="300">
+            <button type="submit" class="btn" id="submit-comment-btn" style="white-space: nowrap;">Send</button>
+          </form>
+
+          <!-- Comment Stream -->
+          <div id="modal-comments-stream">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No comments yet.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Members Management Modal -->
+  <div class="modal-overlay" id="members-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Team Members</h2>
+        <button class="modal-close-btn" id="close-members-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Invite Form -->
+        <form id="invite-member-form" style="margin-bottom: 1.75rem; background: var(--surface-alt); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+          <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">Invite Teammate</h4>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="email" id="invite-email" class="form-input" placeholder="Enter teammate's registered email" required style="flex: 1;">
+            <select id="invite-role" class="form-select" style="width: 120px;">
+              <option value="MEMBER">Member</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+            <button type="submit" class="btn btn-sm" id="invite-btn">Invite</button>
+          </div>
+        </form>
+
+        <!-- Current Members List -->
+        <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem;">Project Members</h4>
+        <div id="project-members-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Column Modal -->
+  <div class="modal-overlay" id="add-column-modal">
+    <div class="modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h2>Add Workflow Column</h2>
+        <button class="modal-close-btn" id="close-column-modal-btn">&times;</button>
+      </div>
+      <form id="add-column-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="column-name">Column Name</label>
+            <input type="text" id="column-name" class="form-input" placeholder="e.g. Blocked, Quality Assurance, Deployed" required maxlength="50">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="cancel-column-btn">Cancel</button>
+          <button type="submit" class="btn btn-sm" id="save-column-btn">Add Column</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/socket.js"></script>
+  <script src="../js/board.js"></script>
+</body>
+</html>

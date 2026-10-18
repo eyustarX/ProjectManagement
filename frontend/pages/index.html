@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects Dashboard - PlanAlpha Collaborative Project Management</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="index.html" class="nav-brand">
+      📊 <span>PlanAlpha</span>
+    </a>
+    <div class="nav-actions" id="nav-user-container">
+      <!-- Injected by auth.js -->
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="dashboard-header">
+      <div>
+        <h1>Projects Workspace</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">
+          Collaborate on team boards, assign tasks, and track real-time delivery.
+        </p>
+      </div>
+      <button class="btn" id="open-create-modal-btn">
+        <span>+</span> New Project
+      </button>
+    </div>
+
+    <!-- Projects Grid -->
+    <div id="projects-container">
+      <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p>Loading projects...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Project Modal -->
+  <div class="modal-overlay" id="create-project-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Create New Project</h2>
+        <button class="modal-close-btn" id="close-create-modal-btn">&times;</button>
+      </div>
+      <form id="create-project-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="project-name">Project Name</label>
+            <input type="text" id="project-name" class="form-input" placeholder="e.g. Website Redesign Q4" required maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="project-desc">Description (Optional)</label>
+            <textarea id="project-desc" class="form-textarea" rows="4" placeholder="Briefly describe the project goals, scope, and objectives..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-create-btn">Cancel</button>
+          <button type="submit" class="btn" id="save-project-btn">Create Project Board</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/socket.js"></script>
+  <script>
+    auth.requireAuth();
+
+    const user = auth.getUser();
+    if (user) {
+      socketClient.init(user);
+    }
+
+    const projectsContainer = document.getElementById('projects-container');
+    const createModal = document.getElementById('create-project-modal');
+    const openCreateBtn = document.getElementById('open-create-modal-btn');
+    const closeCreateBtn = document.getElementById('close-create-modal-btn');
+    const cancelCreateBtn = document.getElementById('cancel-create-btn');
+    const createForm = document.getElementById('create-project-form');
+    const saveProjectBtn = document.getElementById('save-project-btn');
+
+    // Modal controls
+    const toggleModal = (show) => {
+      createModal.classList.toggle('active', show);
+      if (show) document.getElementById('project-name').focus();
+    };
+
+    openCreateBtn.addEventListener('click', () => toggleModal(true));
+    closeCreateBtn.addEventListener('click', () => toggleModal(false));
+    cancelCreateBtn.addEventListener('click', () => toggleModal(false));
+
+    async function loadProjects() {
+      try {
+        const res = await api.get('/projects');
+        const projects = res.data;
+
+        if (!projects || projects.length === 0) {
+          projectsContainer.innerHTML = `
+            <div style="background: var(--surface); border: 2px dashed var(--border); border-radius: var(--radius-lg); text-align: center; padding: 4rem 2rem;">
+              <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📋</div>
+              <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">No projects yet</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 400px; margin-inline: auto;">
+                Create your first collaborative group project board to start assigning tasks and communicating with your team.
+              </p>
+              <button class="btn" onclick="toggleModal(true)">+ Create Project</button>
+            </div>
+          `;
+          return;
+        }
+
+        projectsContainer.className = 'projects-grid';
+        projectsContainer.innerHTML = projects.map((p) => {
+          const roleClass = p.myRole === 'OWNER' ? 'role-owner' : p.myRole === 'ADMIN' ? 'role-admin' : 'role-member';
+          
+          return `
+            <a href="board.html?id=${p.id}" class="project-card">
+              <div>
+                <div class="project-card-header">
+                  <h3 class="project-title">${escapeHTML(p.name)}</h3>
+                  <span class="project-role-badge ${roleClass}">${p.myRole}</span>
+                </div>
+                <p class="project-desc">${p.description ? escapeHTML(p.description) : '<span style="font-style: italic; color: var(--text-light);">No description provided</span>'}</p>
+              </div>
+
+              <div class="project-meta">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span>📋 <strong>${p.tasksCount}</strong> tasks</span>
+                  <span>•</span>
+                  <span>👥 <strong>${p.membersCount}</strong> members</span>
+                </div>
+                <div class="member-avatars">
+                  ${p.members ? p.members.slice(0, 4).map(m => `
+                    <img src="${m.user.avatarUrl || 'https://api.dicebear.com/7.x/initials/svg?seed=' + encodeURIComponent(m.user.name)}" class="member-avatar-stacked" title="${escapeHTML(m.user.name)} (${m.role})">
+                  `).join('') : ''}
+                </div>
+              </div>
+            </a>
+          `;
+        }).join('');
+      } catch (err) {
+        projectsContainer.innerHTML = `
+          <div style="color: var(--danger); text-align: center; padding: 2rem;">
+            Failed to load projects: ${escapeHTML(err.message)}
+          </div>
+        `;
+      }
+    }
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('project-name').value.trim();
+      const description = document.getElementById('project-desc').value.trim();
+
+      if (!name) return;
+
+      try {
+        saveProjectBtn.disabled = true;
+        saveProjectBtn.textContent = 'Creating...';
+
+        const res = await api.post('/projects', { name, description });
+        const createdProject = res.data;
+
+        toggleModal(false);
+        createForm.reset();
+        saveProjectBtn.disabled = false;
+        saveProjectBtn.textContent = 'Create Project Board';
+
+        // Redirect directly to the newly created project board
+        window.location.href = `board.html?id=${createdProject.id}`;
+      } catch (err) {
+        alert(err.message || 'Failed to create project');
+        saveProjectBtn.disabled = false;
+        saveProjectBtn.textContent = 'Create Project Board';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadProjects);
+  </script>
+</body>
+</html>

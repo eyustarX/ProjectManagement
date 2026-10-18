@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - PlanAlpha Collaborative Project Management</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html" class="nav-brand" style="justify-content: center; margin-bottom: 1rem;">
+          📊 <span>PlanAlpha</span>
+        </a>
+        <h1>Create Your Account</h1>
+        <p>Start organizing team projects, assigning tasks, and syncing in real-time.</p>
+      </div>
+
+      <div id="alert-box" style="display: none; padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1.25rem; font-size: 0.85rem;"></div>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" class="form-input" placeholder="Alex Morgan" required autocomplete="name">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Work Email</label>
+          <input type="email" id="email" class="form-input" placeholder="alex@company.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password (min 6 characters)</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn" style="width: 100%; margin-top: 0.5rem; padding: 0.75rem;">
+          Create Free Account
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--text-muted);">
+        Already have an account? <a href="login.html" style="color: var(--primary); font-weight: 700; text-decoration: none;">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    auth.redirectIfAuth();
+
+    const registerForm = document.getElementById('register-form');
+    const alertBox = document.getElementById('alert-box');
+    const submitBtn = document.getElementById('submit-btn');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
+
+        const res = await api.post('/auth/register', { name, email, password });
+        auth.setAuth(res.data.user, res.data.token);
+
+        window.location.href = 'index.html';
+      } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.style.backgroundColor = 'var(--danger-bg)';
+        alertBox.style.color = 'var(--danger)';
+        alertBox.textContent = err.message || 'Registration failed. Please try again.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Free Account';
+      }
+    });
+  </script>
+</body>
+</html>
