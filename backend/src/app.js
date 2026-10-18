@@ -33,13 +33,16 @@ app.get('/api/v1', (req, res) => {
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 // Mount Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
-// app.use('/api/v1/projects', projectRoutes);
-// app.use('/api/v1/tasks', taskRoutes);
-// app.use('/api/v1/comments', commentRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1', taskRoutes);
+app.use('/api/v1', commentRoutes);
 
 // Centralized Error Handlers (must be registered last)
 app.use(notFoundHandler);
