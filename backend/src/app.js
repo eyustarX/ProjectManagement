@@ -31,12 +31,15 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
-// Route mount placeholders (will be attached in subsequent phases)
-// app.use('/api/v1/auth', authRoutes);
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+
+// Mount Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 // app.use('/api/v1/projects', projectRoutes);
 // app.use('/api/v1/tasks', taskRoutes);
 // app.use('/api/v1/comments', commentRoutes);
-// app.use('/api/v1/users', userRoutes);
 
 // Centralized Error Handlers (must be registered last)
 app.use(notFoundHandler);
