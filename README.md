@@ -1,4 +1,4 @@
-# CodeAlpha Collaborative Project Management Tool (`CodeAlpha_ProjectManagement`)
+# Collaborative Project Management Tool (`ProjectManagement`)
 
 A full-stack, collaborative project management and team workspace platform built for **CodeAlpha Internship Task 3**. Inspired by industry tools like **Trello** and **Asana**, this platform enables teams to create group projects, manage workflow columns on interactive Kanban boards, assign task cards with priorities and deadlines, engage in threaded task discussions, and synchronize board updates instantly using **WebSockets (`Socket.io`)**.
 
@@ -289,8 +289,8 @@ All routes are prefixed with `/api/v1`.
 
 ### 2. Clone the Repository
 ```bash
-git clone https://github.com/eyustarX/CodeAlpha_ProjectManagement.git
-cd CodeAlpha_ProjectManagement
+git clone https://github.com/eyustarX/ProjectManagement.git
+cd ProjectManagement
 ```
 
 ### 3. Backend Setup
