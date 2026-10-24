@@ -4,7 +4,7 @@ const prisma = require('../src/config/prisma');
 
 jest.setTimeout(45000); // 45s for Neon DB cloud queries
 
-describe('CodeAlpha Collaborative Project Management API Integration Test Suite', () => {
+describe('Collaborative Project Management API Integration Test Suite', () => {
   const runId = Date.now();
   let userA = {
     name: 'Alice Project Manager',

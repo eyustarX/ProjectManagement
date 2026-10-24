@@ -1,5 +1,5 @@
 /**
- * API client wrapper for CodeAlpha Collaborative Project Management
+ * API client wrapper for Collaborative Project Management
  */
 const API_BASE_URL = 'http://localhost:5000/api/v1';
 

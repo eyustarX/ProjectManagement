@@ -26,7 +26,7 @@ initSocketHandler(io);
 // Start Server
 server.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🚀 CodeAlpha Project Management Server running on port ${PORT}`);
+  console.log(`🚀 Project Management Server running on port ${PORT}`);
   console.log(`⚡ WebSocket Server initialized and ready for real-time sync`);
   console.log(`📡 Health Check: http://localhost:${PORT}/health`);
   console.log(`=======================================================`);

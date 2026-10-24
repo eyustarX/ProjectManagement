@@ -1,30 +1,38 @@
-# Collaborative Project Management Tool (`ProjectManagement`)
+# PlanAlpha - Collaborative Project Management Platform 📊
 
-A full-stack, collaborative project management and team workspace platform built for **CodeAlpha Internship Task 3**. Inspired by industry tools like **Trello** and **Asana**, this platform enables teams to create group projects, manage workflow columns on interactive Kanban boards, assign task cards with priorities and deadlines, engage in threaded task discussions, and synchronize board updates instantly using **WebSockets (`Socket.io`)**.
+[![Status](https://img.shields.io/badge/Status-Production--Ready-success?style=for-the-badge)](https://github.com/eyustarX/ProjectManagement)
+[![Node](https://img.shields.io/badge/Node.js-v18%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-4.x-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://socket.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon_Cloud-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.x-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Tests](https://img.shields.io/badge/Jest-Passing-C21325?style=for-the-badge&logo=jest&logoColor=white)](https://jestjs.io/)
+
+A modern, full-stack collaborative project management and team workspace application inspired by industry tools like **Trello** and **Asana**. Built with **Node.js, Express.js, Socket.io, PostgreSQL (Neon Cloud), Prisma ORM v6, and modern Vanilla JavaScript**. The platform enables distributed teams to create group projects, manage workflow columns on interactive Kanban boards with drag-and-drop, assign task cards with priorities and deadlines, engage in threaded discussions, and synchronize board updates in real-time using **WebSockets**.
 
 ---
 
 ## 🚀 Key Features
 
 - **Collaborative Group Workspaces**:
-  - Create and manage projects with titles, descriptions, and dynamic team membership.
+  - Create and manage projects with custom titles, descriptions, and dynamic team membership.
   - Role-Based Access Control (**RBAC**): `OWNER`, `ADMIN`, and `MEMBER` permissions.
   - Teammate invitations with instant user search or direct email lookup.
 - **Interactive Kanban Boards & Task Cards**:
   - Horizontally scrollable workflow columns (e.g., *To Do*, *In Progress*, *In Review*, *Done*).
-  - Ability to add, rename, and manage custom workflow columns.
-  - Task cards featuring title, description, priority badges (`LOW`, `MEDIUM`, `HIGH`, `URGENT`), due dates, assignee avatar, and comments count.
-  - Interactive card movements across columns via drag-and-drop or column selection dropdown.
+  - Ability to add, rename, and customize workflow columns on the fly.
+  - Task cards featuring title, description, priority badges (`LOW`, `MEDIUM`, `HIGH`, `URGENT`), due dates, assignee avatars, and comment counters.
+  - Interactive card movements across columns via native HTML5 drag-and-drop or column selection dropdown.
 - **Task Communications & Discussion Threads**:
-  - In-task threaded comments for discussions, updates, and feedback.
+  - In-task threaded comments for discussions, updates, and team feedback.
   - Author-level deletion controls and audit timestamps.
   - Comprehensive project activity logs capturing who created, moved, or commented on tasks.
-- **Bonus Feature: Real-Time Synchronization via WebSockets (`Socket.io`)**:
+- **Real-Time Synchronization via WebSockets (`Socket.io`)**:
   - Room-based bi-directional communication scoped to each project (`project_<id>`).
   - Live card creations, movements, updates, and deletions reflect instantly across all connected teammates without page reloads.
   - Real-time toast notifications for new task assignments, project invites, and team comments.
 - **Security & User Management**:
-  - Secure authentication using **JWT** and **bcryptjs** (salted hashing).
+  - Secure authentication using **JWT** and salted **bcryptjs** password hashing.
   - Centralized middleware enforcing authorization, project boundary isolation, and error handling.
 
 ---
@@ -161,7 +169,7 @@ erDiagram
 ## 📂 Project Directory Structure
 
 ```
-CodeAlpha_ProjectManagement/
+ProjectManagement/
 ├── backend/
 │   ├── prisma/
 │   │   ├── applyMigration.js       # Safe DDL migration script for Neon
@@ -355,4 +363,4 @@ npm test
 ---
 
 ## 📄 License
-This project was developed for the **CodeAlpha Internship Program**. Distributed under the MIT License.
+This project is open-source and distributed under the [MIT License](LICENSE).

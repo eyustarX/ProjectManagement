@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'CodeAlpha Collaborative Project Management API is healthy and running',
+    message: 'Collaborative Project Management API is healthy and running',
     timestamp: new Date().toISOString(),
   });
 });
@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
 app.get('/api/v1', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to CodeAlpha Collaborative Project Management API v1',
+    message: 'Welcome to Collaborative Project Management API v1',
     version: '1.0.0',
   });
 });
